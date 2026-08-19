@@ -10,6 +10,7 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from torchvision import models, transforms
 from PIL import Image
+from tqdm import tqdm
 
 # ------------------------------------------------------------
 # 0. 경로 설정 (★ 본인 환경에 맞게 이 3개만 수정하세요)
@@ -65,7 +66,7 @@ class PortionDataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
-        img_path = os.path.join(self.image_dir, row["filename"])
+        img_path = os.path.join(self.image_dir, row["split"], row["filename"])
 
         image = Image.open(img_path).convert("RGB")
         image = transform(image).unsqueeze(0).to(DEVICE)  # (1, 3, 224, 224)
@@ -112,12 +113,13 @@ class PortionMLP(nn.Module):
 def train(model, train_loader, val_loader, epochs=20, lr=1e-3):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
-
+    best_val_acc = 0.0
+    
     for epoch in range(epochs):
         # ---- 학습 ----
         model.train()
         total_loss = 0
-        for x, y in train_loader:
+        for x, y in tqdm(train_loader, desc=f"Epoch {epoch+1} [train]"):
             x, y = x.to(DEVICE), y.to(DEVICE)
             optimizer.zero_grad()
             output = model(x)
@@ -130,7 +132,7 @@ def train(model, train_loader, val_loader, epochs=20, lr=1e-3):
         model.eval()
         correct, total = 0, 0
         with torch.no_grad():
-            for x, y in val_loader:
+            for x, y in tqdm(val_loader, desc=f"Epoch {epoch+1} [val]"):
                 x, y = x.to(DEVICE), y.to(DEVICE)
                 output = model(x)
                 pred = output.argmax(dim=1)
@@ -146,7 +148,7 @@ def train(model, train_loader, val_loader, epochs=20, lr=1e-3):
 
 
 # ------------------------------------------------------------
-# 6. 새 사진 한 장 넣으면 Q값 예측하는 함수 (최종 사용 시나리오)
+# 6. 새 사진 한 장 넣으면 양추정(Q값)하는 함수
 # ------------------------------------------------------------
 def predict_single_image(model, image_path, food_id):
     """
@@ -186,23 +188,30 @@ if __name__ == "__main__":
     print(f"train: {len(train_df)}개, val: {len(val_df)}개")
 
     # ★ 처음엔 파이프라인이 잘 도는지만 확인하려면 아래 두 줄 주석 풀어서 소량만 테스트하세요
-    # train_df = train_df.sample(50, random_state=42).reset_index(drop=True)
-    # val_df = val_df.sample(20, random_state=42).reset_index(drop=True)
+    # train_df = train_df.sample(200, random_state=42).reset_index(drop=True)
+    # val_df = val_df.sample(50, random_state=42).reset_index(drop=True)
 
     train_dataset = PortionDataset(train_df, IMAGE_DIR)
     val_dataset = PortionDataset(val_df, IMAGE_DIR)
 
     # num_workers=0 으로 시작 (에러 나면 이미지 로딩 문제일 확률 높음)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=0)
-    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
+    val_loader = DataLoader(val_dataset, batch_size=32, num_workers=0)
 
     mlp_model = PortionMLP(input_dim=FEATURE_DIM + NUM_FOOD_CLASSES).to(DEVICE)
 
-    trained_model = train(mlp_model, train_loader, val_loader, epochs=20)
+    trained_model = train(mlp_model, train_loader, val_loader, epochs=50)
 
     # 모델 저장
     torch.save(trained_model.state_dict(), "portion_mlp.pt")
     print("모델 저장 완료: portion_mlp.pt")
 
-    # 사용 예시 (경로/food_id는 실제 값으로 바꿔서 테스트)
-    # predict_single_image(trained_model, "./images/side_주먹밥김밥류_접시_김밥_Q1_00001.JPG", food_id=0)
+    # 2. 저장해둔 학습 결과(가중치)를 그 껍데기에 불러오기
+    trained_model.load_state_dict(torch.load("portion_mlp.pt"))
+
+    # 사용 예시 (경로/food_id는 실제 값으로 바꿔서 테스트) -> food_id는 분류 코드에서 받아와야함
+    predict_single_image(
+        trained_model,
+        "./ssalbap.jpg",
+        food_id=5,
+    )
