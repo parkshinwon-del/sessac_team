@@ -25,12 +25,12 @@ from torchvision import models, transforms
 
 # portion_finetune_final.py 에 정의된 모델 클래스를 그대로 가져다 씀
 # (같은 폴더에 두거나, import 경로를 맞춰주세요)
-from portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
+from portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
 
 # ------------------------------------------------------------
 # 0. 설정 (★ 본인 환경에 맞게 수정)
 # ------------------------------------------------------------
-MODEL_PATH = "portion_finetune_best.pt"
+MODEL_PATH = "./portion/weights/portion_finetune_best.pt"
 IMAGE_PATH = "./gimbab.jpg"  # 확인하고 싶은 사진 경로
 FOOD_ID = 0  # 이 사진의 음식 종류 번호
 

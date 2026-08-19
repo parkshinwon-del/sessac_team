@@ -9,7 +9,7 @@ import os
 # ------------------------------
 # 1. 데이터 불러오기
 # ------------------------------
-df = pd.read_csv("labels.csv")
+df = pd.read_csv("./data/labels.csv")
 
 # food_id를 one-hot 인코딩용으로 정리 (15종 - 0~14)
 NUM_FOOD_CLASSES = df["food_id"].nunique()

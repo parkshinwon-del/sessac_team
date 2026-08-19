@@ -34,8 +34,8 @@ from tqdm import tqdm
 # ------------------------------------------------------------
 # 0. 경로 설정 (★ 본인 환경에 맞게 수정)
 # ------------------------------------------------------------
-LABELS_CSV = "./labels.csv"
-IMAGE_ROOT = "./images"  # 이 안에 train/, val/ 폴더
+LABELS_CSV = "./data/labels.csv"
+IMAGE_ROOT = "./data/images"  # 이 안에 train/, val/ 폴더
 NUM_FOOD_CLASSES = 14  # foodmap.csv 기준 음식 종류 수
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -281,21 +281,21 @@ def main():
     model = PortionNet().to(DEVICE)
 
     # history, best_acc = train(
-    #     model, train_loader, val_loader, args.epochs, args.lr, "finetune"
+    #     model, train_loader, val_loader, args.epochs, args.lr, "estimate"
     # )
 
     # hist_df = pd.DataFrame(history)
-    # hist_df.to_csv("results_finetune_final.csv", index=False, encoding="utf-8-sig")
+    # hist_df.to_csv("results_estimate_final.csv", index=False, encoding="utf-8-sig")
 
     # print("\n" + "=" * 60)
     # print(f"최종 최고 val_acc: {best_acc:.4f}")
-    # print("모델 저장: portion_finetune_best.pt")
-    # print("기록 저장: results_finetune_final.csv")
+    # print("모델 저장: portion_estimate_best.pt")
+    # print("기록 저장: results_estimate_final.csv")
     # print("=" * 60)
 
     # ---- 사용 예시 (통합 전, 개별 테스트용) ----
     best_model = PortionNet().to(DEVICE)
-    best_model.load_state_dict(torch.load("portion_finetune_best.pt"))
+    best_model.load_state_dict(torch.load("portion_estimate_best.pt"))
     predict_single_image(best_model, "./gimbab.jpg", food_id=0)
 
 if __name__ == "__main__":

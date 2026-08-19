@@ -10,16 +10,16 @@ import torch
 # ★ 실제 함수명/파일명은 분류 담당자와 맞춰서 수정하세요
 # 예: from food_classifier import predict_food
 # predict_food(image_path) -> (food_id: int, food_name: str) 형태라고 가정
-#from food_classifier import predict_food
+# from food_classifier import predict_food
 
 # ---- 2. 양추정 모델 (portion_finetune_final.py에서 가져오기) ----
-from portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
+from portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
 from PIL import Image
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-PORTION_MODEL_PATH = "portion_finetune_best.pt"
-LABELS_CSV = "labels.csv"  # weight_base_g, kcal_base 등 참고용
+PORTION_MODEL_PATH = "./portion/weights/portion_finetune_best.pt"
+LABELS_CSV = "./data/labels.csv"  # weight_base_g, kcal_base 등 참고용
 
 # ------------------------------------------------------------
 # 준비: 양추정 모델 불러오기 (프로그램 시작할 때 한 번만)
