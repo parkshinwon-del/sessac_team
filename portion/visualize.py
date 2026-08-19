@@ -30,7 +30,9 @@ from portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSE
 # ------------------------------------------------------------
 # 0. 설정 (★ 본인 환경에 맞게 수정)
 # ------------------------------------------------------------
-MODEL_PATH = "./portion/weights/portion_finetune_best.pt"
+plt.rcParams["font.family"] = "Malgun Gothic"  # 윈도우 기본 한글 폰트
+plt.rcParams["axes.unicode_minus"] = False
+MODEL_PATH = "./portion/weights/portion_estimate_best.pt"
 IMAGE_PATH = "./gimbab.jpg"  # 확인하고 싶은 사진 경로
 FOOD_ID = 0  # 이 사진의 음식 종류 번호
 
@@ -118,9 +120,7 @@ def main():
     axes[1].axis("off")
 
     plt.tight_layout()
-    plt.rcParams["font.family"] = "Malgun Gothic"  # 윈도우 기본 한글 폰트
-    plt.rcParams["axes.unicode_minus"] = False
-    plt.savefig("gradcam_result.png", dpi=150)
+    plt.savefig("gradcam_result.png", "./outputs", dpi=150)
     print("저장 완료: gradcam_result.png")
     print(f"예측 결과: Q{pred_class + 1}")
 
