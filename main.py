@@ -13,7 +13,7 @@ import torch
 # from food_classifier import predict_food
 
 # ---- 2. 양추정 모델 (portion_finetune_final.py에서 가져오기) ----
-from portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
+from Portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
 from PIL import Image
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"

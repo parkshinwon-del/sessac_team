@@ -1,25 +1,3 @@
-# ============================================================
-# 양 추정 모델 - 최종 버전 (Fine-tuning 방식)
-# ============================================================
-#
-# ■ 비교 실험 결과 (results_finetune.csv)
-#   frozen(팀원 portion_mlp 방식):  최고 val_acc 약 0.63 (11epoch)
-#   finetune(이 코드):              최고 val_acc 약 0.94 (15epoch)
-#   → finetune 방식으로 최종 확정
-#
-# ■ 이전 실험용 코드에서 바뀐 점
-#   1. predict_single_image()  : 새 사진 한 장 넣으면 Q등급 예측하는 함수 추가
-#   2. tqdm                    : 학습/검증 진행 상황 표시 추가
-#   3. --mode 기본값을 finetune으로 고정 (frozen과 비교할 필요 없어졌으므로)
-#   4. food_id 연동 지점        : 분류(CNN) 담당자 모델 결과를 받는 부분에 주석으로 표시
-#
-# ------------------------------------------------------------
-# ■ 실행 방법
-#   1) 경로 설정 3줄을 본인 환경에 맞게 수정
-#   2) 학습:  python portion_finetune_final.py
-#   3) 예측만 다시 하고 싶을 때는 맨 아래 predict_single_image() 부분 참고
-# ============================================================
-
 import os
 import argparse
 
@@ -39,7 +17,6 @@ IMAGE_ROOT = "./data/images"  # 이 안에 train/, val/ 폴더
 NUM_FOOD_CLASSES = 14  # foodmap.csv 기준 음식 종류 수
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
 
 # ------------------------------------------------------------
 # 1. 이미지 전처리
