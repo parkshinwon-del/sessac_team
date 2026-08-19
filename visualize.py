@@ -25,7 +25,7 @@ from torchvision import models, transforms
 
 # portion_finetune_final.py 에 정의된 모델 클래스를 그대로 가져다 씀
 # (같은 폴더에 두거나, import 경로를 맞춰주세요)
-from portion_finetune_test import PortionNet, eval_transform, NUM_FOOD_CLASSES
+from portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
 
 # ------------------------------------------------------------
 # 0. 설정 (★ 본인 환경에 맞게 수정)
