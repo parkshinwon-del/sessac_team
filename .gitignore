@@ -1,0 +1,6 @@
+YOLODataset/
+runs/
+*.pt
+__pycache__/
+.venv/
+.env
