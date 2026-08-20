@@ -5,12 +5,12 @@
 
 import pandas as pd
 import torch
-from Portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
+from portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
 from PIL import Image
 # from ultralytics import YOLO
 
 # ---- 1. 음식분류 모델 (분류 코드에서 가져오기) ----
-from Classification.predict import predict_food
+from classification.predict import predict_food
 
 # ---- 2. 양추정 모델 ----
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"

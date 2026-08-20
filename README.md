@@ -1,93 +1,109 @@
-# team_project2 YOLO - 학원 수업 스타일
+# 한 끼 양 추정 프로젝트
 
-학원 자료의 YOLO 구조와 코드 흐름을 최대한 유지하면서,
-현재 음식 데이터셋에 맞게 경로와 클래스만 바꾼 프로젝트입니다.
+사진 한 장으로 음식 종류를 인식하고, 담긴 양(Q1~Q5)을 추정해서
+예상 무게(g)와 칼로리(kcal)를 알려주는 딥러닝 파이프라인입니다.
 
-## 1. 현재 데이터
-
-원본:
-- `C:\Users\user\Desktop\team_project2\image`
-- `C:\Users\user\Desktop\team_project2\label`
-
-## 2. YOLO 표준 구조
-
-`preprocessing/yolo_preprocessing.py`를 실행하면 다음 구조가 만들어집니다.
-
-```text
-C:\Users\user\Desktop\team_project2\YOLODataset
-├─ images
-│  ├─ train
-│  └─ valid
-└─ labels
-   ├─ train
-   └─ valid
+```
+사진 업로드 → 음식분류(YOLO) → 양추정(ResNet) → 무게/칼로리 환산 → 결과 출력
 ```
 
-학원 자료의 `Data/PeachDataset/YoloDataset` 구조와 같은 형태입니다.
+## 데모 실행 화면
 
-## 3. 실행 순서
+Streamlit으로 사진을 올리면 음식 종류, 확신도, 양 등급, 예상 무게/칼로리가 바로 나옵니다.
 
-### 1) YOLO 데이터셋 구조 만들기
+---
 
-프로젝트 루트에서:
+## 1. 폴더 구조
 
-```powershell
-python preprocessing/yolo_preprocessing.py
+```
+sessac_team/
+├── main.py                    # 전체 파이프라인 연결
+├── requirements.txt           # 필요 패키지 목록
+├── yolo_setting.yaml          # YOLO 학습 설정(클래스 목록 등)
+├── yolov8n.pt                 # YOLO 사전학습 베이스 체크포인트
+│
+├── Classification/            # 음식분류 (YOLO)
+│   ├── predict.py             # predict_food() 함수 - main.py에서 사용
+│   └── runs/detect/food_train01-5/weights/best.pt   # 학습된 분류 모델
+│
+├── portion/                   # 양추정 (ResNet)
+│   ├── portion_estimate.py    # 모델 정의 + 학습 코드
+│   └── weights/
+│       └── portion_estimate_best.pt
+│
+├── data/                      # 라벨/메타데이터
+│   ├── labels.csv             # 이미지별 food_id, q_grade, weight_base_g, kcal_base 등
+│   └── foodmap.csv            # 음식 종류 목록
+│
+├── app/
+│   └── streamlit_app.py       # 로컬 데모 UI
+│
+├── models/                    # YOLO 학습 스크립트 (yolo.py 등)
+├── preprocessing/              # 라벨/데이터셋 전처리 스크립트
+└── outputs/                    # 학습 기록, Grad-CAM 결과 등
+```
+---
+
+## 2. 실행 방법
+
+### 2-1. 환경 준비
+
+```bash
+conda activate CV
+python -m pip install -r requirements.txt
 ```
 
-### 2) 데이터/라벨 확인
+### 2-2. 콘솔에서 파이프라인만 테스트
 
-```powershell
-python check_dataset.py
-```
-
-### 3) YOLO 학습
-
-```powershell
+```bash
 python main.py
 ```
 
-학원 자료의 `models/yolo.py`에서 사용한
-`YOLO('yolov8n.pt').train(...)` 흐름을 그대로 유지했습니다.
+`main.py` 안 `image_path` 변수를 원하는 사진 경로로 바꾼 뒤 실행하면,
+터미널에 분류 결과 → 양 등급 → 무게/칼로리가 순서대로 출력됩니다.
 
-## 4. 학습 설정
+### 2-3. 웹 데모 실행
 
-`models/yolo.py`에서:
-
-- epochs = 50
-- imgsz = 640
-- batch = 16
-- device = 0
-- plots = True
-- name = `food_train01`
-
-로 설정했습니다.
-
-GPU가 없는 경우:
-
-```python
-device='cpu'
+```bash
+python -m streamlit run app/streamlit_app.py
 ```
+---
 
-로 변경합니다.
+## 3. 파이프라인 상세
 
-## 5. 클래스
+| 단계 | 담당 | 방식 | 입력 | 출력 |
+|---|---|---|---|---|
+| 음식분류 | Classification | YOLOv8 (Object Detection) | 사진 | food_id, food_name, 확신도(conf) |
+| 양추정 | portion | ResNet18 Fine-tuning + MLP | 사진, food_id | Q등급 (1~5) |
+| 칼로리 계산 | main.py | labels.csv 기준 환산 | food_id, Q등급 | 무게(g), 칼로리(kcal) |
 
-```text
-0  김밥
-1  김치볶음밥
-2  삼선볶음밥
-3  새우볶음밥
-4  소고기김밥
-5  쌀밥
-6  알밥
-7  영양돌솥밥
-8  잡탕밥
-9  전주비빔밥
-10 제육덮밥
-11 참치마요삼각김밥
-12 콩밥
-13 전주콩나물국밥
-```
+### 양추정 모델 선택 과정
 
-`yolo_setting.yaml`의 클래스 번호와 현재 라벨의 class_id가 반드시 동일해야 합니다.
+- **1차 시도 (Feature Extraction)**: ResNet18을 고정하고 특징벡터만 뽑아 MLP 학습 → val_acc 최고 약 0.63
+- **2차 시도 (Fine-tuning)**: ResNet18도 함께 학습 → val_acc 최고 **0.9383** → 이 방식으로 최종 확정
+- 두 방식 비교 기록: `outputs/results_finetune_final.csv`
+
+### 발견한 한계 (Grad-CAM으로 진단)
+
+- 학습 데이터가 스튜디오 환경(단일 음식, 고정 구도)에서 촬영되어, 모델이 "실제 양"이 아니라
+  "카메라 확대 정도"에 의존해 판단하는 경향을 Grad-CAM으로 확인함
+- `RandomResizedCrop` 등 증강 추가로 완화 시도
+- 여러 음식/배경이 섞인 복잡한 실제 식탁 사진에서는 정확도가 떨어짐
+  (학습 데이터가 단일 음식 위주라 생기는 구조적 한계)
+
+---
+
+## 4. 팀 구성
+
+| 파트 | 담당 내용 |
+|---|---|
+| 음식분류 | YOLOv8 기반 음식 탐지/분류 |
+| 양추정 | ResNet18 Fine-tuning + MLP 기반 Q등급(1~5) 예측 |
+| 통합/UI | main.py 파이프라인 연결, Streamlit 데모 |
+
+## 5. 앞으로 개선하면 좋을 것
+
+- 복잡한 배경/여러 음식이 섞인 사진 데이터 추가
+- 음식 영역만 미리 crop해서 양추정 모델에 넣는 방식 검토
+- ColorJitter, RandomRotation 등 추가 증강 실험
+- 밥류 외 다른 음식 카테고리(국물류, 반찬류 등)로 확장
