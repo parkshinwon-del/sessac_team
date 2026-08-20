@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 # 학습된 최고 성능 모델
-model = YOLO(r"./runs/detect/food_train01-6/weights/best.pt")
+model = YOLO(r"./classification/runs/detect/food_train01-6/weights/best.pt")
 
 # 예측할 이미지
 image_path = r"C:\Users\user\Downloads\ssalbap.jpg"
