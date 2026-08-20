@@ -4,15 +4,15 @@ from ultralytics import YOLO
 model = YOLO(r"./classification/runs/detect/food_train01-6/weights/best.pt")
 
 # 예측할 이미지
-image_path = r"C:\Users\user\Downloads\ssalbap.jpg"
+#image_path = r"C:\Users\user\Downloads\ssalbap.jpg"
 
-# 예측
-results = model.predict(
-    source=image_path,
-    conf=0.25,
-    #save=True,
-    show=True
-)
+# # 예측
+# results = model.predict(
+#     source=image_path,
+#     conf=0.25,
+#     #save=True,
+#     show=True
+# )
 
 def predict_food(image_path):
     '''
