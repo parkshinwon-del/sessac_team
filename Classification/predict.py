@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 # 학습된 최고 성능 모델
-model = YOLO(r"./runs/detect/food_train01-5/weights/best.pt")
+model = YOLO(r"./runs/detect/food_train01-6/weights/best.pt")
 
 # 예측할 이미지
 image_path = r"C:\Users\user\Downloads\ssalbap.jpg"
@@ -55,4 +55,4 @@ if __name__ == "__main__":
     image_path = r"C:\Users\user\Downloads\ssalbap.jpg"
 
     food_id, food_name, conf = predict_food(image_path)
-    print(f"class_id: {food_id}, 예측된 음식: {food_name}, 확신도: {conf:.2f}")
+    #print(f"class_id: {food_id}, 예측된 음식: {food_name}, 확신도: {conf:.2f}")
