@@ -7,10 +7,10 @@ import pandas as pd
 import torch
 from Portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
 from PIL import Image
-# from food_classifier import predict_food
+# from ultralytics import YOLO
 
 # ---- 1. 음식분류 모델 (분류 코드에서 가져오기) ----
-# predict_food(image_path) -> (food_id: int, food_name: str) 형태라고 가정
+from Classification.predict import predict_food
 
 # ---- 2. 양추정 모델 ----
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -33,9 +33,9 @@ food_base_info = labels_df.drop_duplicates(subset="food_id").set_index("food_id"
 # ------------------------------------------------------------
 # 1. 음식분류 결과 받아오기
 # ------------------------------------------------------------
-# def get_food_class(image_path):
-#     food_id, food_name = predict_food(image_path)
-#     return food_id, food_name
+def get_food_class(image_path):
+    food_id, food_name, conf = predict_food(image_path)
+    return food_id, food_name, conf
 
 # ------------------------------------------------------------
 # 2. 양추정 결과(Q등급) 받아오기
@@ -71,10 +71,10 @@ def estimate_weight_and_kcal(food_id, q_grade):
 # ------------------------------------------------------------
 # 4. 결과 출력
 # ------------------------------------------------------------
-def show_result(food_name, q_grade, weight_g, kcal):
+def show_result(food_name, conf, q_grade, weight_g, kcal):
 
     print("=" * 40)
-    print(f"음식: {food_name}")
+    print(f"{conf*100 :.1f}의 확률로 {food_name} 추정")
     print(f"양 등급: Q{q_grade}")
     print(f"추정 무게: {weight_g}g")
     print(f"추정 칼로리: {kcal}kcal")
@@ -86,14 +86,14 @@ def show_result(food_name, q_grade, weight_g, kcal):
 if __name__ == "__main__":
     image_path = "./ssalbap.jpg"  # 테스트할 사진 경로
 
-    # 1. 음식분류
-    #food_id, food_name = get_food_class(image_path)
+    #1. 음식분류
+    food_id, food_name, conf = get_food_class(image_path)
 
-    # 2. 양추정
-    #q_grade = get_portion_grade(image_path, food_id)
+    #2. 양추정
+    q_grade = get_portion_grade(image_path, food_id)
 
-    # 3. 무게/칼로리 환산
-    #weight_g, kcal = estimate_weight_and_kcal(food_id, q_grade)
+    #3. 무게/칼로리 환산
+    weight_g, kcal = estimate_weight_and_kcal(food_id, q_grade)
 
-    # 5. 결과 출력
-    #show_result(food_name, q_grade, weight_g, kcal)
+    #5. 결과 출력
+    show_result(food_name, conf, q_grade, weight_g, kcal)
