@@ -187,12 +187,13 @@ def predict_single_image(model, image_path, food_id):
 
     ※ 연동 지점 (4번 요청사항)
       지금은 food_id를 사람이 직접 넣어주고 있음.
-      실제 서비스에서는 "음식분류(CNN) 담당자의 모델이 예측한 food_id"를
+      실제 서비스에서는 "음식분류 담당자의 모델이 예측한 food_id"를
       여기로 그대로 넘겨받아야 함.
       예: food_id = classification_model.predict(image_path)
           predict_single_image(model, image_path, food_id)
       → 이 연결 코드는 통합 담당자와 함께 별도로 작성 필요
     """
+    
     model.eval()
 
     image = Image.open(image_path).convert("RGB")
@@ -208,7 +209,6 @@ def predict_single_image(model, image_path, food_id):
     q_grade = f"Q{pred_class + 1}"
     print(f"예측 결과: {q_grade}")
     return q_grade
-
 
 # ------------------------------------------------------------
 # 6. 실행

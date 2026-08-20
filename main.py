@@ -5,31 +5,27 @@
 
 import pandas as pd
 import torch
-
-# ---- 1. 음식분류 모델 (분류 담당자 코드에서 가져오기) ----
-# ★ 실제 함수명/파일명은 분류 담당자와 맞춰서 수정하세요
-# 예: from food_classifier import predict_food
-# predict_food(image_path) -> (food_id: int, food_name: str) 형태라고 가정
-# from food_classifier import predict_food
-
-# ---- 2. 양추정 모델 (portion_finetune_final.py에서 가져오기) ----
 from Portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
 from PIL import Image
+# from food_classifier import predict_food
 
+# ---- 1. 음식분류 모델 (분류 코드에서 가져오기) ----
+# predict_food(image_path) -> (food_id: int, food_name: str) 형태라고 가정
+
+# ---- 2. 양추정 모델 ----
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-PORTION_MODEL_PATH = "./portion/weights/portion_finetune_best.pt"
+PORTION_MODEL_PATH = "./portion/weights/portion_estimate_best.pt"
 LABELS_CSV = "./data/labels.csv"  # weight_base_g, kcal_base 등 참고용
 
 # ------------------------------------------------------------
-# 준비: 양추정 모델 불러오기 (프로그램 시작할 때 한 번만)
+# 양추정 모델 - 준비
 # ------------------------------------------------------------
 portion_model = PortionNet(num_food=NUM_FOOD_CLASSES).to(DEVICE)
 portion_model.load_state_dict(torch.load(PORTION_MODEL_PATH, map_location=DEVICE))
 portion_model.eval()
 
 # food_id 기준으로 기준 무게/칼로리를 빨리 찾기 위한 참고표
-labels_df = pd.read_csv(LABELS_CSV, sep="\t")  # 구분자/인코딩은 실제 파일에 맞게 조정
+labels_df = pd.read_csv(LABELS_CSV)  # 구분자/인코딩은 실제 파일에 맞게 조정
 food_base_info = labels_df.drop_duplicates(subset="food_id").set_index("food_id")[
     ["food_name", "weight_base_g", "kcal_base"]
 ]
@@ -40,7 +36,6 @@ food_base_info = labels_df.drop_duplicates(subset="food_id").set_index("food_id"
 # def get_food_class(image_path):
 #     food_id, food_name = predict_food(image_path)
 #     return food_id, food_name
-
 
 # ------------------------------------------------------------
 # 2. 양추정 결과(Q등급) 받아오기
@@ -60,9 +55,7 @@ def get_portion_grade(image_path, food_id):
     return q_grade
 
 # ------------------------------------------------------------
-# 3. Q등급 → 실제 무게/칼로리 환산
-#    (전처리 담당자가 만든 q_ratio 규칙: Q1=0.25, Q2=0.5 ... 라고 가정)
-#    ★ 실제 q_grade별 ratio 값은 labels.csv에서 확인해서 맞춰야 함
+# 3. Q등급 기준 실제 무게/칼로리 환산
 # ------------------------------------------------------------
 Q_RATIO_MAP = {1: 0.25, 2: 0.5, 3: 0.75, 4: 1.0, 5: 1.25}
 
