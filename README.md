@@ -12,9 +12,11 @@
 Streamlit으로 사진을 올리면 음식 종류, 양 등급, 예상 무게/칼로리가 바로 나옵니다.
 
 <기본 화면>
+
 <img width="772" height="336" alt="image" src="https://github.com/user-attachments/assets/ee2b8147-76f1-4174-a823-76dfed253851" />
 
 <업로드 후 결과 확인 화면>
+
 <img width="600" height="772" alt="image" src="https://github.com/user-attachments/assets/6d9a730b-5d74-4926-b9a4-5f160002b460" />
 
 ---
