@@ -26,9 +26,9 @@ FOOD_OPTIONS = pipeline.food_base_info["food_name"].to_dict()  # {food_id: food_
 # ------------------------------------------------------------
 # 화면 구성
 # ------------------------------------------------------------
-st.set_page_config(page_title="밥 한 끼 양 추정 데모", page_icon="🍚")
-st.title("🍚 밥 한 끼 양 추정 데모")
-st.write("사진을 올리면 음식 종류와 양(Q등급), 예상 무게/칼로리를 알려드려요.")
+st.set_page_config(page_title="MealVision | 식사량·칼로리 추정", page_icon="🍽️")
+st.title("🍽️ MealVision")
+st.write("사진 한 장으로 밥 종류, 1인분 양(Q등급), 예상 무게와 칼로리를 추정합니다.")
 
 uploaded_file = st.file_uploader("음식 사진을 올려주세요", type=["jpg", "jpeg", "png"])
 
