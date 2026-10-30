@@ -1,7 +1,10 @@
+from pathlib import Path
+
 from ultralytics import YOLO
 
 # 학습된 최고 성능 모델
-model = YOLO(r"./classification/runs/detect/food_train01-6/weights/best.pt")
+MODEL_PATH = Path(__file__).resolve().parent / "runs" / "detect" / "food_train01-6" / "weights" / "best.pt"
+model = YOLO(MODEL_PATH)
 
 def predict_food(image_path):
     '''

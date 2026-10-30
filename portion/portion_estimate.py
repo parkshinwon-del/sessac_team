@@ -82,7 +82,9 @@ class PortionNet(nn.Module):
     def __init__(self, num_food=NUM_FOOD_CLASSES, num_classes=5):
         super().__init__()
 
-        self.cnn = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+        # The fine-tuned checkpoint below supplies the weights at inference time.
+        # Avoid a network download when the web app starts.
+        self.cnn = models.resnet18(weights=None)
         feature_dim = self.cnn.fc.in_features
         self.cnn.fc = nn.Identity()
 

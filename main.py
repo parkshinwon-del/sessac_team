@@ -3,6 +3,8 @@
 # 흐름: 사진 → 음식분류 → 양추정 → 칼로리 계산 → 결과 출력
 # ============================================================
 
+from pathlib import Path
+
 import pandas as pd
 import torch
 from portion.portion_estimate import PortionNet, eval_transform, NUM_FOOD_CLASSES
@@ -10,12 +12,13 @@ from PIL import Image
 # from ultralytics import YOLO
 
 # ---- 1. 음식분류 모델 (분류 코드에서 가져오기) ----
-from classification.predict import predict_food
+from Classification.predict import predict_food
 
 # ---- 2. 양추정 모델 ----
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-PORTION_MODEL_PATH = "./portion/weights/portion_estimate_best.pt"
-LABELS_CSV = "./data/labels.csv"  # weight_base_g, kcal_base 등 참고용
+PROJECT_ROOT = Path(__file__).resolve().parent
+PORTION_MODEL_PATH = PROJECT_ROOT / "portion" / "weights" / "portion_estimate_best.pt"
+LABELS_CSV = PROJECT_ROOT / "data" / "labels.csv"  # weight_base_g, kcal_base 등 참고용
 
 # ------------------------------------------------------------
 # 양추정 모델 - 준비
