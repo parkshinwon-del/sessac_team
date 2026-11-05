@@ -5,6 +5,7 @@
 
 import os
 import sys
+from tempfile import TemporaryDirectory
 
 import streamlit as st
 from PIL import Image
@@ -46,15 +47,19 @@ run_button = st.button("결과 확인하기", disabled=(uploaded_file is None))
 # 버튼 눌렀을 때 실행되는 부분
 # ------------------------------------------------------------
 if run_button and uploaded_file is not None:
-    with st.spinner("분석 중입니다..."):
+    with TemporaryDirectory() as temp_dir, st.spinner("분석 중입니다..."):
         # 업로드된 이미지를 임시로 저장 (기존 함수들이 '경로'를 받는 구조라서)
-        temp_path = "temp_uploaded_image.jpg"
+        temp_path = os.path.join(temp_dir, "uploaded_image.jpg")
         image = Image.open(uploaded_file).convert("RGB")
         image.save(temp_path)
 
         # 1. 음식분류
         if HAS_CLASSIFIER:
-            food_id, food_name, conf = pipeline.get_food_class(temp_path)
+            try:
+                food_id, food_name, conf = pipeline.get_food_class(temp_path)
+            except ValueError as error:
+                st.warning(f"{error} 음식이 크게 보이는 다른 사진을 올려주세요.")
+                st.stop()
         else:
             food_id = selected_food_id
             food_name = FOOD_OPTIONS[food_id]
@@ -64,8 +69,6 @@ if run_button and uploaded_file is not None:
 
         # 3. 무게/칼로리 환산
         weight_g, kcal = pipeline.estimate_weight_and_kcal(food_id, q_grade)
-
-        os.remove(temp_path)  # 임시 파일 정리
 
     # ---- 결과 화면 ----
     st.image(image, caption="업로드한 사진")
